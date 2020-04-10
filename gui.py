@@ -322,10 +322,21 @@ def stop_button():
     drawCircleB((480,400),92,6,black)
     display(stop,430,375)
 
-def side_pannel():
+def side_pannel(index):
     vertical_frame()
     highlight(920,140)
-    display(txtm1,1020,145)
+    if(index==0):
+      display(txtm1,1020,145)
+    elif(index==1):  
+      display(txtm2,1020,145)
+    elif(index==2):  
+      display(txtm3,1020,145)
+    elif(index==3):  
+      display(txtm4,1020,145)
+    elif(index==4):  
+      display(txtm5,1020,145)
+    elif(index==5):  
+      display(txtm6,1020,145)
     drawCircle((1100,450),90,white)
     drawCircle((1099,449),92,red,6)
     if(gallon<10):
@@ -407,7 +418,7 @@ def stop_menu(img):
     image_load(img,90,150)
     display(tapc,350,650)
     stop_button()
-    side_pannel()
+    side_pannel(index)
     back_button(grey,black)
 
 temp=0
@@ -481,19 +492,59 @@ while running:
               break
            #if(touch(pos,1110,20,1192,112) and setting==0 and m1click==1 and index==0):
            #   setting=1 
-           if(touch(pos,30,160,190,210) and setting==1):
+           if(touch(pos,30,160,190,210) and setting==1 and index==0):
               setting=0
               m1click=0
-           if(touch(pos,30,160,190,210) and setting==1):
+           if(touch(pos,30,160,190,210) and setting==1 and index==0):
               setting=0
               m1click=1
-           if(touch(pos,30,160,190,210) and setting==0):
+           if(touch(pos,30,160,190,210) and setting==0 and index==0):
               setting=0
               m1click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==1):
+              setting=0
               m2click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==1):
+              setting=0
+              m2click=1
+           if(touch(pos,30,160,190,210) and setting==0 and index==1):
+              setting=0
+              m2click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==2):
+              setting=0
               m3click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==2):
+              setting=0
+              m3click=1
+           if(touch(pos,30,160,190,210) and setting==0 and index==2):
+              setting=0
+              m3click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==3):
+              setting=0
+              m3click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==3):
+              setting=0
+              m4click=1
+           if(touch(pos,30,160,190,210) and setting==0 and index==3):
+              setting=0
               m4click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==4):
+              setting=0
               m5click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==4):
+              setting=0
+              m5click=1
+           if(touch(pos,30,160,190,210) and setting==0 and index==4):
+              setting=0
+              m5click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==5):
+              setting=0
+              m6click=0
+           if(touch(pos,30,160,190,210) and setting==1 and index==5):
+              setting=0
+              m6click=1
+           if(touch(pos,30,160,190,210) and setting==0 and index==5):
+              setting=0
               m6click=0
            if(touch(pos,1064,304,1130,338) and setting==0 ):
               if(gallon<99):
@@ -527,12 +578,12 @@ while running:
                  display(gal,1070,400)
               else: 
                  display(gal,900,400)
-           #Circle Click Check
+           #Circle Click Check M1 Start
            if ((math.sqrt(sqx + sqy) < 80 ) and (m1click==1) and strt==0 and index==0) :
               strt=1
               stp=0
               print(math.sqrt(sqx+sqy))
-           #Circle Click Check   
+           #Circle Click Check M1   
            if ((math.sqrt(spx + spy) < 90 ) and (m1click==1) and stp==1 and index==0) :
               print ("inside")
               strt=0
@@ -543,8 +594,123 @@ while running:
                  m1on=0
                  m1off=1
               print(math.sqrt(sqx+sqy))
-           #Circle Click Check
+           #Circle Click Check M1
            if ((math.sqrt(sdx + sdy) < 60 ) and (m1click==1) and strt==0 and index==0 and start_delay==0) :
+              start_delay=1
+              strt=1
+              temp=count
+              stp=0
+              print(math.sqrt(sdx+sdy))
+           #Circle Click Check M2 Start
+           if ((math.sqrt(sqx + sqy) < 80 ) and (m2click==1) and strt==0 and index==1) :
+              strt=1
+              stp=0
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M2   
+           if ((math.sqrt(spx + spy) < 90 ) and (m2click==1) and stp==1 and index==1) :
+              print ("inside")
+              strt=0
+              m2click=1
+              start_delay=0
+              if(m2off==0):
+                 off_m2()
+                 m2on=0
+                 m2off=1
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M2
+           if ((math.sqrt(sdx + sdy) < 60 ) and (m2click==1) and strt==0 and index==1 and start_delay==0) :
+              start_delay=1
+              strt=1
+              temp=count
+              stp=0
+              print(math.sqrt(sdx+sdy))
+           #Circle Click Check M3 Start
+           if ((math.sqrt(sqx + sqy) < 80 ) and (m3click==1) and strt==0 and index==2) :
+              strt=1
+              stp=0
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M3   
+           if ((math.sqrt(spx + spy) < 90 ) and (m3click==1) and stp==1 and index==2) :
+              print ("inside")
+              strt=0
+              m3click=1
+              start_delay=0
+              if(m3off==0):
+                 off_m3()
+                 m3on=0
+                 m3off=1
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M3
+           if ((math.sqrt(sdx + sdy) < 60 ) and (m3click==1) and strt==0 and index==2 and start_delay==0) :
+              start_delay=1
+              strt=1
+              temp=count
+              stp=0
+              print(math.sqrt(sdx+sdy))
+           #Circle Click Check M4 Start
+           if ((math.sqrt(sqx + sqy) < 80 ) and (m4click==1) and strt==0 and index==3) :
+              strt=1
+              stp=0
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M4   
+           if ((math.sqrt(spx + spy) < 90 ) and (m4click==1) and stp==1 and index==3) :
+              print ("inside")
+              strt=0
+              m4click=1
+              start_delay=0
+              if(m4off==0):
+                 off_m4()
+                 m4on=0
+                 m4off=1
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M4
+           if ((math.sqrt(sdx + sdy) < 60 ) and (m4click==1) and strt==0 and index==3 and start_delay==0) :
+              start_delay=1
+              strt=1
+              temp=count
+              stp=0
+              print(math.sqrt(sdx+sdy))
+           #Circle Click Check M5 Start
+           if ((math.sqrt(sqx + sqy) < 80 ) and (m5click==1) and strt==0 and index==4) :
+              strt=1
+              stp=0
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M5   
+           if ((math.sqrt(spx + spy) < 90 ) and (m5click==1) and stp==1 and index==4) :
+              print ("inside")
+              strt=0
+              m5click=1
+              start_delay=0
+              if(m5off==0):
+                 off_m5()
+                 m5on=0
+                 m5off=1
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M5
+           if ((math.sqrt(sdx + sdy) < 60 ) and (m5click==1) and strt==0 and index==4 and start_delay==0) :
+              start_delay=1
+              strt=1
+              temp=count
+              stp=0
+              print(math.sqrt(sdx+sdy))
+           #Circle Click Check M6 Start
+           if ((math.sqrt(sqx + sqy) < 80 ) and (m6click==1) and strt==0 and index==5) :
+              strt=1
+              stp=0
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M6   
+           if ((math.sqrt(spx + spy) < 90 ) and (m6click==1) and stp==1 and index==5) :
+              print ("inside")
+              strt=0
+              m6click=1
+              start_delay=0
+              if(m6off==0):
+                 off_m6()
+                 m6on=0
+                 m6off=1
+              print(math.sqrt(sqx+sqy))
+           #Circle Click Check M6
+           if ((math.sqrt(sdx + sdy) < 60 ) and (m6click==1) and strt==0 and index==5 and start_delay==0) :
               start_delay=1
               strt=1
               temp=count
@@ -623,19 +789,6 @@ while running:
                  adb5b  = create_font(str(add5),b1,black,b=True)
                  ad5   = create_font(str(add5),h3,black,b=True)
                  sb5    = create_font(str(sub5),h3,black,b=True)
-          # Circle Click Check
-          # if ((math.sqrt(sqx + sqy) < 80 ) and (m2click==1) and strt==0 and index==1) :
-          #    print ("inside")
-          #    strt=1
-          #    stp=0
-          #    print(math.sqrt(sqx+sqy))
-          # #Circle Click Check   
-          # if ((math.sqrt(spx + spy) < 90 ) and (m2click==1) and stp==1 and index==1) :
-          #    print ("inside")
-          #    strt=0
-          #    m2click=1
-          #    print(math.sqrt(sqx+sqy))
-
 
 
 # Add this somewhere after the event pumping and before the display.flip()
@@ -662,7 +815,7 @@ while running:
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m1f)
-          side_pannel()
+          side_pannel(index)
           if(temp==0):
              stp=1
              stop_menu(m1f)
@@ -674,7 +827,7 @@ while running:
                 m1off=0
        elif(m1click==1 and setting==0):
           start_button(m1f)
-          side_pannel()
+          side_pannel(index)
     elif(index==1):   
        if(m2click==0 and setting==0):
           menu(index)
@@ -683,6 +836,10 @@ while running:
        elif(setting==1): 
           settings_menu()
        elif(strt==1 and m2click==1 and start_delay==0):
+          if(m2on==0):
+              on_m2()
+              m2on=1
+              m2off=0
           stop_menu(m2f)
           stp=1
        elif(m2click==1 and setting==0 and start_delay==1):  
@@ -690,15 +847,19 @@ while running:
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m2f)
-          side_pannel()
+          side_pannel(index)
           if(temp==0):
              stp=1
              stop_menu(m2f)
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
+             if(m2on==0):
+                on_m2()
+                m2on=1
+                m2off=0
        elif(m2click==1 and setting==0):  
           start_button(m2f)
-          side_pannel()
+          side_pannel(index)
     elif(index==2):      
        if(m3click==0 and setting==0):
           menu(index)
@@ -707,6 +868,10 @@ while running:
        elif(setting==1): 
           settings_menu()
        elif(strt==1 and m3click==1 and start_delay==0):
+          if(m3on==0):
+              on_m3()
+              m3on=1
+              m3off=0
           stop_menu(m3f)
           stp=1
        elif(m3click==1 and setting==0 and start_delay==1):  
@@ -714,15 +879,19 @@ while running:
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m3f)
-          side_pannel()
+          side_pannel(index)
           if(temp==0):
              stp=1
              stop_menu(m3f)
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
+             if(m3on==0):
+                on_m3()
+                m3on=1
+                m3off=0
        elif(m3click==1 and setting==0):  
           start_button(m3f)
-          side_pannel()
+          side_pannel(index)
     elif(index==3):      
        if(m4click==0 and setting==0):
           menu(index)
@@ -731,6 +900,10 @@ while running:
        elif(setting==1): 
           settings_menu()
        elif(strt==1 and m4click==1 and start_delay==0):
+          if(m4on==0):
+              on_m4()
+              m4on=1
+              m4off=0
           stop_menu(m4f)
           stp=1
        elif(m4click==1 and setting==0 and start_delay==1):  
@@ -738,15 +911,19 @@ while running:
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m4f)
-          side_pannel()
+          side_pannel(index)
           if(temp==0):
              stp=1
              stop_menu(m4f)
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
+             if(m4on==0):
+                on_m4()
+                m4on=1
+                m4off=0
        elif(m4click==1 and setting==0):  
           start_button(m4f)
-          side_pannel()
+          side_pannel(index)
     elif(index==4):      
        if(m5click==0 and setting==0):
           menu(index)
@@ -755,6 +932,10 @@ while running:
        elif(setting==1): 
           settings_menu()
        elif(strt==1 and m5click==1 and start_delay==0):
+          if(m5on==0):
+              on_m5()
+              m5on=1
+              m5off=0
           stop_menu(m5f)
           stp=1
        elif(m5click==1 and setting==0 and start_delay==1):  
@@ -762,15 +943,19 @@ while running:
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m5f)
-          side_pannel()
+          side_pannel(index)
           if(temp==0):
              stp=1
              stop_menu(m5f)
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
+             if(m5on==0):
+                on_m5()
+                m5on=1
+                m5off=0
        elif(m5click==1 and setting==0):  
           start_button(m5f)
-          side_pannel()
+          side_pannel(index)
     elif(index==5):      
        if(m6click==0 and setting==0):
           menu(index)
@@ -779,6 +964,10 @@ while running:
        elif(setting==1): 
           settings_menu()
        elif(strt==1 and m6click==1 and start_delay==0):
+          if(m6on==0):
+              on_m6()
+              m6on=1
+              m6off=0
           stop_menu(m6f)
           stp=1
        elif(m6click==1 and setting==0 and start_delay==1):  
@@ -786,15 +975,19 @@ while running:
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m6f)
-          side_pannel()
+          side_pannel(index)
           if(temp==0):
              stp=1
              stop_menu(m6f)
              start_delay=0
+             if(m6on==0):
+                on_m6()
+                m6on=1
+                m6off=0
              sec    = create_font(str(count),h4,white,b=True)
        elif(m6click==1 and setting==0):  
           start_button(m6f)
-          side_pannel()
+          side_pannel(index)
     pygame.display.flip()
   
 
