@@ -8,7 +8,10 @@ from pygame import *
 import math
 import time
 import sys
+import os
+import RPi.GPIO as GPIO 
 #Colour Definition
+
 
 trans      = (0, 0, 0, 0)
 grey       = (115,111,111)
@@ -19,6 +22,52 @@ white      = (255,255,255)
 black      = (0,0,0)
 button     = (30,160 , 160, 50)
 rect_set   = (120,240 , 375, 30)
+
+
+
+####################################
+# RPi GPIO Details
+####################################
+
+#GPIO Details
+m1pin=11
+f1pin=16
+m2pin=11
+f2pin=16
+m3pin=11
+f3pin=16
+m4pin=11
+f4pin=16
+m5pin=11
+f5pin=16
+m6pin=10
+f6pin=10
+
+####################################
+#Flow Meter Calibrarion
+#Button Delay
+####################################
+gallonPerCount=0.0264172
+##0264172
+button_delay=1
+global fcount
+fcount=0
+global volume
+volume=0
+####################################
+
+count=60
+gallon=1
+add5=5
+add1=1
+sub1=1
+sub5=5
+setting=0
+strt=0
+stp=0
+index=0
+start_delay=0
+
 
 #Font Size Definition
 b1=90
@@ -75,17 +124,7 @@ down=pygame.image.load('down.png')
 lt1=pygame.image.load('left_1.png')
 rt1=pygame.image.load('right_1.png')
 #g1=pygame.image.load('gear.svg')
-count=5
-gallon=1
-add5=5
-add1=1
-sub1=1
-sub5=5
-setting=0
-strt=0
-stp=0
-index=0
-start_delay=0
+
 def gear(x,y):
     screen.blit(gearimg, (x,y))
 
@@ -99,10 +138,6 @@ def create_font(t,s=55,c=white, b=False,i=False):
 
 def display(txt,x,y):
     screen.blit(txt,(x,y))
-
-#def machine_trans(m1):
-#    print("clear")
-#    select.fill(transparent)
 
 # Text to be rendered with create_font    
 Banner = create_font("COOLANT AUTOMATION SYSTEM")
@@ -161,46 +196,32 @@ m3off  =  0
 m4off  =  0
 m5off  =  0
 m6off  =  0
+temp   =  0
 
 running = True
 
-def on_m1():
-    print("Switch ON Machine1")
+def touch_delay():
+    time.sleep(0.5)
 
-def off_m1():
-    print("Switch 0FF Machine1")
+#Turns on the pump relay
+def RelayOn(pin):
+    print("")
+    print("Turning Pump Relay ON")
+    GPIO.output(pin, GPIO.HIGH)
 
-def on_m2():
-    print("Switch ON Machine2")
+#Turns off the pump relay
+def RelayOff(pin):
+    print("")
+    print("Turning Pump Relay OFF")
+    GPIO.output(pin, GPIO.LOW)
 
-def off_m2():
-    print("Switch 0FF Machine2")
-
-def on_m3():
-    print("Switch ON Machine3")
-
-def off_m3():
-    print("Switch 0FF Machine3")
-
-def on_m4():
-    print("Switch ON Machine4")
-
-def off_m4():
-    print("Switch 0FF Machine4")
-
-def on_m5():
-    print("Switch ON Machine5")
-
-def off_m5():
-    print("Switch 0FF Machine5")
-
-def on_m6():
-    print("Switch ON Machine6")
-
-def off_m6():
-    print("Switch 0FF Machine6")
-
-
+#Function that is called each time a pulse is detected from the flow sensor
+def countPulse(channel):
+    global fcount
+    fcount = fcount+1
+    volume = fcount * gallonPerCount
+    print("fCount: {0}  Volume: {1}".format(fcount,volume), end='\r', flush=True)
+    
 
 def vertical_frame():
     pygame.draw.rect(screen, grey, pygame.Rect(920,120, width/3, height))
@@ -328,13 +349,13 @@ def side_pannel(index):
     if(index==0):
       display(txtm1,1020,145)
     elif(index==1):  
-      display(txtm2,1020,145)
+      display(txtm2,1035,145)
     elif(index==2):  
-      display(txtm3,1020,145)
+      display(txtm3,1050,145)
     elif(index==3):  
-      display(txtm4,1020,145)
+      display(txtm4,1045,145)
     elif(index==4):  
-      display(txtm5,1020,145)
+      display(txtm5,1035,145)
     elif(index==5):  
       display(txtm6,1020,145)
     drawCircle((1100,450),90,white)
@@ -421,7 +442,36 @@ def stop_menu(img):
     side_pannel(index)
     back_button(grey,black)
 
-temp=0
+#Setup GPIO
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(m1pin,GPIO.OUT)
+GPIO.setup(m2pin,GPIO.OUT)
+GPIO.setup(m3pin,GPIO.OUT)
+GPIO.setup(m4pin,GPIO.OUT)
+GPIO.setup(m5pin,GPIO.OUT)
+GPIO.setup(m6pin,GPIO.OUT)
+
+GPIO.setup(f1pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(f2pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(f3pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(f4pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(f5pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+GPIO.setup(f6pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+
+RelayOff(m1pin)
+RelayOff(m2pin)
+RelayOff(m3pin)
+RelayOff(m4pin)
+RelayOff(m5pin)
+RelayOff(m6pin)
+
+GPIO.add_event_detect(f1pin, GPIO.FALLING, callback=countPulse)
+GPIO.add_event_detect(f2pin, GPIO.FALLING, callback=countPulse)
+GPIO.add_event_detect(f3pin, GPIO.FALLING, callback=countPulse)
+GPIO.add_event_detect(f4pin, GPIO.FALLING, callback=countPulse)
+GPIO.add_event_detect(f5pin, GPIO.FALLING, callback=countPulse)
+GPIO.add_event_detect(f6pin, GPIO.FALLING, callback=countPulse)
+
 while running:
     # Did the user click the window close button?
     
@@ -444,25 +494,31 @@ while running:
 
            if(touch(pos,158,190,640,600) and m1click==0 and setting==0 and index==0 ):
               m1click=1
+              touch_delay()
            if(touch(pos,158,190,640,600) and m2click==0 and setting==0 and index==1):
               m2click=1
+              touch_delay()
            if(touch(pos,158,190,640,600) and m3click==0 and setting==0 and index==2):
               m3click=1
+              touch_delay()
            if(touch(pos,158,190,640,600) and m4click==0 and setting==0 and index==3):
               m4click=1
+              touch_delay()
            if(touch(pos,158,190,640,600) and m5click==0 and setting==0 and index==4):
               m5click=1
+              touch_delay()
            if(touch(pos,158,190,640,600) and m6click==0 and setting==0 and index==5):
               m6click=1
+              touch_delay()
            if(touch(pos,1160,17,1236,93) and setting==0):
               setting=1 
+              touch_delay()
            if(touch(pos,751,353,873,474) and setting==0 and m1click==0 and index==0):
               index+=1
               break
            if(touch(pos,751,353,873,474) and setting==0 and m1click==0 and index==1):
               index+=1
               break
-              print("here2")
            if(touch(pos,751,353,873,474) and setting==0 and m1click==0 and index==2):
               index+=1
               break
@@ -583,6 +639,7 @@ while running:
               strt=1
               stp=0
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M1   
            if ((math.sqrt(spx + spy) < 90 ) and (m1click==1) and stp==1 and index==0) :
               print ("inside")
@@ -590,10 +647,11 @@ while running:
               m1click=1
               start_delay=0
               if(m1off==0):
-                 off_m1()
+                 RelayOff(m1pin)
                  m1on=0
                  m1off=1
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M1
            if ((math.sqrt(sdx + sdy) < 60 ) and (m1click==1) and strt==0 and index==0 and start_delay==0) :
               start_delay=1
@@ -606,6 +664,7 @@ while running:
               strt=1
               stp=0
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M2   
            if ((math.sqrt(spx + spy) < 90 ) and (m2click==1) and stp==1 and index==1) :
               print ("inside")
@@ -613,10 +672,11 @@ while running:
               m2click=1
               start_delay=0
               if(m2off==0):
-                 off_m2()
+                 RelayOff(m2pin)
                  m2on=0
                  m2off=1
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M2
            if ((math.sqrt(sdx + sdy) < 60 ) and (m2click==1) and strt==0 and index==1 and start_delay==0) :
               start_delay=1
@@ -624,11 +684,13 @@ while running:
               temp=count
               stp=0
               print(math.sqrt(sdx+sdy))
+              touch_delay()
            #Circle Click Check M3 Start
            if ((math.sqrt(sqx + sqy) < 80 ) and (m3click==1) and strt==0 and index==2) :
               strt=1
               stp=0
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M3   
            if ((math.sqrt(spx + spy) < 90 ) and (m3click==1) and stp==1 and index==2) :
               print ("inside")
@@ -636,10 +698,11 @@ while running:
               m3click=1
               start_delay=0
               if(m3off==0):
-                 off_m3()
+                 RelayOff(m3pin)
                  m3on=0
                  m3off=1
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M3
            if ((math.sqrt(sdx + sdy) < 60 ) and (m3click==1) and strt==0 and index==2 and start_delay==0) :
               start_delay=1
@@ -652,6 +715,7 @@ while running:
               strt=1
               stp=0
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M4   
            if ((math.sqrt(spx + spy) < 90 ) and (m4click==1) and stp==1 and index==3) :
               print ("inside")
@@ -659,10 +723,11 @@ while running:
               m4click=1
               start_delay=0
               if(m4off==0):
-                 off_m4()
+                 RelayOff(m4pin)
                  m4on=0
                  m4off=1
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M4
            if ((math.sqrt(sdx + sdy) < 60 ) and (m4click==1) and strt==0 and index==3 and start_delay==0) :
               start_delay=1
@@ -675,6 +740,7 @@ while running:
               strt=1
               stp=0
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M5   
            if ((math.sqrt(spx + spy) < 90 ) and (m5click==1) and stp==1 and index==4) :
               print ("inside")
@@ -686,6 +752,7 @@ while running:
                  m5on=0
                  m5off=1
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M5
            if ((math.sqrt(sdx + sdy) < 60 ) and (m5click==1) and strt==0 and index==4 and start_delay==0) :
               start_delay=1
@@ -698,6 +765,7 @@ while running:
               strt=1
               stp=0
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M6   
            if ((math.sqrt(spx + spy) < 90 ) and (m6click==1) and stp==1 and index==5) :
               print ("inside")
@@ -705,10 +773,11 @@ while running:
               m6click=1
               start_delay=0
               if(m6off==0):
-                 off_m6()
+                 RelayOff(m6pin)
                  m6on=0
                  m6off=1
               print(math.sqrt(sqx+sqy))
+              touch_delay()
            #Circle Click Check M6
            if ((math.sqrt(sdx + sdy) < 60 ) and (m6click==1) and strt==0 and index==5 and start_delay==0) :
               start_delay=1
@@ -805,9 +874,15 @@ while running:
           settings_menu()
        elif(strt==1 and m1click==1 and start_delay==0):
           if(m1on==0):
-              on_m1()
+              RelayOn(m1pin)
               m1on=1
               m1off=0
+          if(volume > gallon):    
+             if(m1off==0):
+                RelayOff(m1pin)
+                m1on=0
+                m1off=1
+                fcount=0
           stop_menu(m1f)
           stp=1
        elif(strt==1 and m1click==1 and start_delay==1):
@@ -822,9 +897,15 @@ while running:
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
              if(m1on==0):
-                on_m1()
+                RelayOn(m1pin)
                 m1on=1
                 m1off=0
+             if(volume > gallon):    
+                if(m1off==0):
+                   RelayOff(m1pin)
+                   m1on=0 
+                   fcount=0
+                   m1off=1
        elif(m1click==1 and setting==0):
           start_button(m1f)
           side_pannel(index)
@@ -837,7 +918,7 @@ while running:
           settings_menu()
        elif(strt==1 and m2click==1 and start_delay==0):
           if(m2on==0):
-              on_m2()
+              RelayOn(m2pin)
               m2on=1
               m2off=0
           stop_menu(m2f)
@@ -854,7 +935,7 @@ while running:
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
              if(m2on==0):
-                on_m2()
+                RelayOn(m2pin)
                 m2on=1
                 m2off=0
        elif(m2click==1 and setting==0):  
@@ -869,7 +950,7 @@ while running:
           settings_menu()
        elif(strt==1 and m3click==1 and start_delay==0):
           if(m3on==0):
-              on_m3()
+              RelayOn(m3pin)
               m3on=1
               m3off=0
           stop_menu(m3f)
@@ -886,7 +967,7 @@ while running:
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
              if(m3on==0):
-                on_m3()
+                RelayOn(m3pin)
                 m3on=1
                 m3off=0
        elif(m3click==1 and setting==0):  
@@ -901,7 +982,7 @@ while running:
           settings_menu()
        elif(strt==1 and m4click==1 and start_delay==0):
           if(m4on==0):
-              on_m4()
+              RelayOn(m4pin)
               m4on=1
               m4off=0
           stop_menu(m4f)
@@ -918,7 +999,7 @@ while running:
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
              if(m4on==0):
-                on_m4()
+                RelayOn(m4pin)
                 m4on=1
                 m4off=0
        elif(m4click==1 and setting==0):  
@@ -933,7 +1014,7 @@ while running:
           settings_menu()
        elif(strt==1 and m5click==1 and start_delay==0):
           if(m5on==0):
-              on_m5()
+              RelayOn(m5pin)
               m5on=1
               m5off=0
           stop_menu(m5f)
@@ -950,7 +1031,7 @@ while running:
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
              if(m5on==0):
-                on_m5()
+                RelayOn(m5pin)
                 m5on=1
                 m5off=0
        elif(m5click==1 and setting==0):  
@@ -965,7 +1046,7 @@ while running:
           settings_menu()
        elif(strt==1 and m6click==1 and start_delay==0):
           if(m6on==0):
-              on_m6()
+              RelayOn(m6pin)
               m6on=1
               m6off=0
           stop_menu(m6f)
@@ -981,7 +1062,7 @@ while running:
              stop_menu(m6f)
              start_delay=0
              if(m6on==0):
-                on_m6()
+                RelayOn(m6pin)
                 m6on=1
                 m6off=0
              sec    = create_font(str(count),h4,white,b=True)
