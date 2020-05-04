@@ -2,14 +2,16 @@
 
 
 # Import and initialize the pygame library
-
+debug=0
+fullscreen=0
 import pygame
 from pygame import *
 import math
 import time
 import sys
 import os
-import RPi.GPIO as GPIO 
+if(debug==0):
+   import RPi.GPIO as GPIO 
 #Colour Definition
 
 
@@ -32,22 +34,23 @@ rect_set   = (120,240 , 375, 30)
 #GPIO Details
 m1pin=11
 f1pin=16
-m2pin=11
-f2pin=16
-m3pin=11
-f3pin=16
-m4pin=11
-f4pin=16
-m5pin=11
-f5pin=16
-m6pin=10
-f6pin=10
+m2pin=13
+f2pin=18
+m3pin=15
+f3pin=22
+m4pin=19
+f4pin=32
+m5pin=21
+f5pin=12
+m6pin=23
+f6pin=36
 
 ####################################
 #Flow Meter Calibrarion
 #Button Delay
 ####################################
-gallonPerCount=0.0264172
+gallonPerCount=0.0005159597189017
+##0.0019312
 ##0264172
 button_delay=1
 global fcount
@@ -96,33 +99,37 @@ pygame.init()
 # Set up the drawing window
 
 width=1280
-height=800
+height=1024
 
-screen = pygame.display.set_mode([width, height])
+if(fullscreen==0):
+   screen = pygame.display.set_mode([width, height],pygame.NOFRAME)
+else:
+   screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+
 clock = pygame.time.Clock()
 
 state=["UMC750","VFS22","VF2","VM-3","TM3-P","Robodrill"]
 
 #Images used
-gearimg = pygame.image.load('gear.png')
-m1= pygame.image.load('UMC750.png')
-m1f= pygame.image.load('UMC750t.png')
-m2= pygame.image.load('VF2SS.png')
-m2f= pygame.image.load('VF2SSt.png')
-m3= pygame.image.load('VF2.png')
-m3f= pygame.image.load('VF2t.png')
-m4= pygame.image.load('VM_3.png')
-m4f= pygame.image.load('VM_3t.png')
-m5= pygame.image.load('Tm3_P.png')
-m5f= pygame.image.load('Tm3_Pt.png')
-m6= pygame.image.load('Robodrill.png')
-m6f= pygame.image.load('Robodrillt.png')
-right= pygame.image.load('right.png')
-left=  pygame.image.load('left.png')
-up=pygame.image.load('up.png')
-down=pygame.image.load('down.png')
-lt1=pygame.image.load('left_1.png')
-rt1=pygame.image.load('right_1.png')
+gearimg = pygame.image.load('/home/pi/gui/gear.png')
+m1= pygame.image.load('/home/pi/gui/UMC750.png')
+m1f= pygame.image.load('/home/pi/gui/UMC750t.png')
+m2= pygame.image.load('/home/pi/gui/VF2SS.png')
+m2f= pygame.image.load('/home/pi/gui/VF2SSt.png')
+m3= pygame.image.load('/home/pi/gui/VF2.png')
+m3f= pygame.image.load('/home/pi/gui/VF2t.png')
+m4= pygame.image.load('/home/pi/gui/VM_3.png')
+m4f= pygame.image.load('/home/pi/gui/VM_3t.png')
+m5= pygame.image.load('/home/pi/gui/Tm3_P.png')
+m5f= pygame.image.load('/home/pi/gui/Tm3_Pt.png')
+m6= pygame.image.load('/home/pi/gui/Robodrill.png')
+m6f= pygame.image.load('/home/pi/gui/Robodrillt.png')
+right= pygame.image.load('/home/pi/gui/right.png')
+left=  pygame.image.load('/home/pi/gui/left.png')
+up=pygame.image.load('/home/pi/gui/up.png')
+down=pygame.image.load('/home/pi/gui/down.png')
+lt1=pygame.image.load('/home/pi/gui/left_1.png')
+rt1=pygame.image.load('/home/pi/gui/right_1.png')
 #g1=pygame.image.load('gear.svg')
 
 def gear(x,y):
@@ -201,26 +208,8 @@ temp   =  0
 running = True
 
 def touch_delay():
-    time.sleep(0.5)
+    time.sleep(1)
 
-#Turns on the pump relay
-def RelayOn(pin):
-    print("")
-    print("Turning Pump Relay ON")
-    GPIO.output(pin, GPIO.HIGH)
-
-#Turns off the pump relay
-def RelayOff(pin):
-    print("")
-    print("Turning Pump Relay OFF")
-    GPIO.output(pin, GPIO.LOW)
-
-#Function that is called each time a pulse is detected from the flow sensor
-def countPulse(channel):
-    global fcount
-    fcount = fcount+1
-    volume = fcount * gallonPerCount
-    print("fCount: {0}  Volume: {1}".format(fcount,volume), end='\r', flush=True)
     
 
 def vertical_frame():
@@ -326,8 +315,18 @@ def back_buttonw(col,bor):
 
 def start_button(bg):
     right.fill(trans)
-    image_load(bg,90,150)
-    display(tapc,350,650)
+    if(bg==m6f):
+       image_load(bg,230,270)
+    elif(bg==m3f or bg==m4f):
+       image_load(bg,170,170)
+    elif(bg==m5f):
+       image_load(bg,200,210)
+    else:
+       image_load(bg,90,150)
+    if(bg==m2f or bg==m3f):
+       display(tapc,350,700)
+    else:
+       display(tapc,350,650)
     drawCircle((380,400),85)
     drawCircleB((380,400),87,6,black)
     drawCircle((590,400),60)
@@ -436,41 +435,77 @@ def touch(pos,x1,y1,x2,y2):
        return 0
 
 def stop_menu(img):
-    image_load(img,90,150)
-    display(tapc,350,650)
+    if(img==m6f):
+       image_load(img,230,270)
+    elif(img==m3f or img==m4f):
+       image_load(img,150,150)
+    elif(img==m5f):
+       image_load(img,200,210)
+    else:
+       image_load(img,90,150)
+    if(img==m2f or img==m3f):
+       display(tapc,350,700)
+    else:
+       display(tapc,350,650)
     stop_button()
     side_pannel(index)
     back_button(grey,black)
 
 #Setup GPIO
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(m1pin,GPIO.OUT)
-GPIO.setup(m2pin,GPIO.OUT)
-GPIO.setup(m3pin,GPIO.OUT)
-GPIO.setup(m4pin,GPIO.OUT)
-GPIO.setup(m5pin,GPIO.OUT)
-GPIO.setup(m6pin,GPIO.OUT)
+#GPIO.setmode(GPIO.BOARD)
+#GPIO.setup(m1pin,GPIO.OUT)
+#GPIO.setup(m2pin,GPIO.OUT)
+#GPIO.setup(m3pin,GPIO.OUT)
+#GPIO.setup(m4pin,GPIO.OUT)
+#GPIO.setup(m5pin,GPIO.OUT)
+#GPIO.setup(m6pin,GPIO.OUT)
 
-GPIO.setup(f1pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(f2pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(f3pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(f4pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(f5pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
-GPIO.setup(f6pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+#Turns on the pump relay
+def RelayOn(pin):
+    print("")
+    print("Turning Pump Relay ON")
+    if(debug==0):
+       GPIO.setmode(GPIO.BOARD)
+       GPIO.setup(pin,GPIO.OUT)
+       GPIO.output(pin, GPIO.HIGH)
 
-RelayOff(m1pin)
-RelayOff(m2pin)
-RelayOff(m3pin)
-RelayOff(m4pin)
-RelayOff(m5pin)
-RelayOff(m6pin)
+#Turns off the pump relay
+def RelayOff(pin):
+    print("")
+    print("Turning Pump Relay OFF")
+    if(debug==0):
+       GPIO.setmode(GPIO.BOARD)
+       GPIO.setup(pin,GPIO.OUT)
+       GPIO.output(pin, GPIO.LOW)
+if(debug==0):
+  RelayOff(m1pin)
+  RelayOff(m2pin)
+  RelayOff(m3pin)
+  RelayOff(m4pin)
+  RelayOff(m5pin)
+  RelayOff(m6pin)
 
-GPIO.add_event_detect(f1pin, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(f2pin, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(f3pin, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(f4pin, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(f5pin, GPIO.FALLING, callback=countPulse)
-GPIO.add_event_detect(f6pin, GPIO.FALLING, callback=countPulse)
+#Function that is called each time a pulse is detected from the flow sensor
+def countPulse(channel):
+    global fcount
+    global volume
+    fcount = fcount+1
+    volume = fcount * gallonPerCount
+    #print("fCount: {0}  Volume: {1}".format(fcount,volume), end='\r', flush=True)
+
+if(debug==0):
+   GPIO.setup(f1pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+   GPIO.setup(f2pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+   GPIO.setup(f3pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+   GPIO.setup(f4pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+   GPIO.setup(f5pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+   GPIO.setup(f6pin,GPIO.IN, pull_up_down = GPIO.PUD_UP)
+   GPIO.add_event_detect(f1pin, GPIO.FALLING, callback=countPulse)
+   GPIO.add_event_detect(f2pin, GPIO.FALLING, callback=countPulse)
+   GPIO.add_event_detect(f3pin, GPIO.FALLING, callback=countPulse)
+   GPIO.add_event_detect(f4pin, GPIO.FALLING, callback=countPulse)
+   GPIO.add_event_detect(f5pin, GPIO.FALLING, callback=countPulse)
+   GPIO.add_event_detect(f6pin, GPIO.FALLING, callback=countPulse)
 
 while running:
     # Did the user click the window close button?
@@ -478,12 +513,14 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+               print("Quit")
+               running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
            pos = pygame.mouse.get_pos()
-           print (pos) 
         if event.type == pygame.MOUSEBUTTONUP:
            pos = pygame.mouse.get_pos()
-           print (pos) 
            x,y = pos
            sqx = (x - 380) ** 2
            sqy = (y - 400) ** 2
@@ -545,6 +582,24 @@ while running:
               break
            if(touch(pos,101,351,223,474) and setting==0 and m1click==0 and index==5):
               index-=1
+              break
+           if(touch(pos,920,215,1280,265) and setting==0 and m1click==0 and index!=0):
+              index=0
+              break
+           if(touch(pos,920,280,1280,330) and setting==0 and m1click==0 and index!=1):
+              index=1
+              break
+           if(touch(pos,920,355,1280,405) and setting==0 and m1click==0 and index!=2):
+              index=2
+              break
+           if(touch(pos,920,425,1280,475) and setting==0 and m1click==0 and index!=3):
+              index=3
+              break
+           if(touch(pos,920,500,1280,550,) and setting==0 and m1click==0 and index!=4):
+              index=4
+              break
+           if(touch(pos,920,565,1280,605,) and setting==0 and m1click==0 and index!=5):
+              index=5
               break
            #if(touch(pos,1110,20,1192,112) and setting==0 and m1click==1 and index==0):
            #   setting=1 
@@ -638,11 +693,11 @@ while running:
            if ((math.sqrt(sqx + sqy) < 80 ) and (m1click==1) and strt==0 and index==0) :
               strt=1
               stp=0
-              print(math.sqrt(sqx+sqy))
+              #print(math.sqrt(sqx+sqy))
               touch_delay()
            #Circle Click Check M1   
            if ((math.sqrt(spx + spy) < 90 ) and (m1click==1) and stp==1 and index==0) :
-              print ("inside")
+              #print ("inside")
               strt=0
               m1click=1
               start_delay=0
@@ -650,7 +705,7 @@ while running:
                  RelayOff(m1pin)
                  m1on=0
                  m1off=1
-              print(math.sqrt(sqx+sqy))
+              #print(math.sqrt(sqx+sqy))
               touch_delay()
            #Circle Click Check M1
            if ((math.sqrt(sdx + sdy) < 60 ) and (m1click==1) and strt==0 and index==0 and start_delay==0) :
@@ -658,16 +713,16 @@ while running:
               strt=1
               temp=count
               stp=0
-              print(math.sqrt(sdx+sdy))
+              #print(math.sqrt(sdx+sdy))
            #Circle Click Check M2 Start
            if ((math.sqrt(sqx + sqy) < 80 ) and (m2click==1) and strt==0 and index==1) :
               strt=1
               stp=0
-              print(math.sqrt(sqx+sqy))
+              #print(math.sqrt(sqx+sqy))
               touch_delay()
            #Circle Click Check M2   
            if ((math.sqrt(spx + spy) < 90 ) and (m2click==1) and stp==1 and index==1) :
-              print ("inside")
+              #print ("inside")
               strt=0
               m2click=1
               start_delay=0
@@ -675,7 +730,7 @@ while running:
                  RelayOff(m2pin)
                  m2on=0
                  m2off=1
-              print(math.sqrt(sqx+sqy))
+              #print(math.sqrt(sqx+sqy))
               touch_delay()
            #Circle Click Check M2
            if ((math.sqrt(sdx + sdy) < 60 ) and (m2click==1) and strt==0 and index==1 and start_delay==0) :
@@ -683,13 +738,13 @@ while running:
               strt=1
               temp=count
               stp=0
-              print(math.sqrt(sdx+sdy))
+              #print(math.sqrt(sdx+sdy))
               touch_delay()
            #Circle Click Check M3 Start
            if ((math.sqrt(sqx + sqy) < 80 ) and (m3click==1) and strt==0 and index==2) :
               strt=1
               stp=0
-              print(math.sqrt(sqx+sqy))
+              #print(math.sqrt(sqx+sqy))
               touch_delay()
            #Circle Click Check M3   
            if ((math.sqrt(spx + spy) < 90 ) and (m3click==1) and stp==1 and index==2) :
@@ -807,7 +862,7 @@ while running:
            if(touch(pos,470,301,510,369) and setting==1):
               if(gallon<8):
                  gallon+=2;
-                 print(gallon)
+                 #print(gallon)
                  gals    = create_font(str(gallon),b1,black,b=True)
                  gal    = create_font(str(gallon),b1,black,b=True)
            if(touch(pos,1000,301,1040,369) and setting==1):
@@ -868,7 +923,7 @@ while running:
     if(index==0):
        if(m1click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('right.png')
+          right= pygame.image.load('/home/pi/gui/right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
@@ -883,6 +938,8 @@ while running:
                 m1on=0
                 m1off=1
                 fcount=0
+                m1click=0
+                start=0
           stop_menu(m1f)
           stp=1
        elif(strt==1 and m1click==1 and start_delay==1):
@@ -906,13 +963,15 @@ while running:
                    m1on=0 
                    fcount=0
                    m1off=1
+                   m1click=0
+             start=0
        elif(m1click==1 and setting==0):
           start_button(m1f)
           side_pannel(index)
     elif(index==1):   
        if(m2click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('right.png')
+          right= pygame.image.load('/home/pi/gui/right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
@@ -921,6 +980,14 @@ while running:
               RelayOn(m2pin)
               m2on=1
               m2off=0
+          if(volume > gallon):    
+             if(m2off==0):
+                RelayOff(m2pin)
+                m2on=0
+                m2off=1
+                fcount=0
+                m2click=0
+                start=0
           stop_menu(m2f)
           stp=1
        elif(m2click==1 and setting==0 and start_delay==1):  
@@ -938,13 +1005,21 @@ while running:
                 RelayOn(m2pin)
                 m2on=1
                 m2off=0
+             if(volume > gallon):    
+                if(m2off==0):
+                   RelayOff(m2pin)
+                   m2on=0 
+                   fcount=0
+                   m2off=1
+                   m2click=0
+             start=0
        elif(m2click==1 and setting==0):  
           start_button(m2f)
           side_pannel(index)
     elif(index==2):      
        if(m3click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('right.png')
+          right= pygame.image.load('/home/pi/gui/right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
@@ -953,6 +1028,14 @@ while running:
               RelayOn(m3pin)
               m3on=1
               m3off=0
+          if(volume > gallon):    
+             if(m3off==0):
+                RelayOff(m3pin)
+                m3on=0
+                m3off=1
+                fcount=0
+                m3click=0
+                start=0
           stop_menu(m3f)
           stp=1
        elif(m3click==1 and setting==0 and start_delay==1):  
@@ -970,13 +1053,21 @@ while running:
                 RelayOn(m3pin)
                 m3on=1
                 m3off=0
+             if(volume > gallon):    
+                if(m3off==0):
+                   RelayOff(m3pin)
+                   m3on=0 
+                   fcount=0
+                   m3off=1
+                   m3click=0
+             start=0
        elif(m3click==1 and setting==0):  
           start_button(m3f)
           side_pannel(index)
     elif(index==3):      
        if(m4click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('right.png')
+          right= pygame.image.load('/home/pi/gui/right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
@@ -985,6 +1076,14 @@ while running:
               RelayOn(m4pin)
               m4on=1
               m4off=0
+          if(volume > gallon):    
+             if(m4off==0):
+                RelayOff(m4pin)
+                m4on=0
+                m4off=1
+                fcount=0
+                m4click=0
+                start=0
           stop_menu(m4f)
           stp=1
        elif(m4click==1 and setting==0 and start_delay==1):  
@@ -1002,13 +1101,21 @@ while running:
                 RelayOn(m4pin)
                 m4on=1
                 m4off=0
+             if(volume > gallon):    
+                if(m4off==0):
+                   RelayOff(m4pin)
+                   m4on=0 
+                   fcount=0
+                   m4off=1
+                   m4click=0
+             start=0
        elif(m4click==1 and setting==0):  
           start_button(m4f)
           side_pannel(index)
     elif(index==4):      
        if(m5click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('right.png')
+          right= pygame.image.load('/home/pi/gui/right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
@@ -1017,6 +1124,14 @@ while running:
               RelayOn(m5pin)
               m5on=1
               m5off=0
+          if(volume > gallon):    
+             if(m5off==0):
+                RelayOff(m5pin)
+                m5on=0
+                m5off=1
+                fcount=0
+                m5click=0
+                start=0
           stop_menu(m5f)
           stp=1
        elif(m5click==1 and setting==0 and start_delay==1):  
@@ -1034,13 +1149,21 @@ while running:
                 RelayOn(m5pin)
                 m5on=1
                 m5off=0
+             if(volume > gallon):    
+                if(m5off==0):
+                   RelayOff(m5pin)
+                   m5on=0 
+                   fcount=0
+                   m5off=1
+                   m5click=0
+             start=0
        elif(m5click==1 and setting==0):  
           start_button(m5f)
           side_pannel(index)
     elif(index==5):      
        if(m6click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('right.png')
+          right= pygame.image.load('/home/pi/gui/right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
@@ -1049,6 +1172,14 @@ while running:
               RelayOn(m6pin)
               m6on=1
               m6off=0
+          if(volume > gallon):    
+             if(m6off==0):
+                RelayOff(m6pin)
+                m6on=0
+                m6off=1
+                fcount=0
+                m6click=0
+                start=0
           stop_menu(m6f)
           stp=1
        elif(m6click==1 and setting==0 and start_delay==1):  
