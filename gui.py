@@ -11,7 +11,11 @@ import time
 import sys
 import os
 if(debug==0):
-   import RPi.GPIO as GPIO 
+   import RPi.GPIO as GPIO
+   path="/home/pi/gui/"
+else:
+   path="./"
+
 #Colour Definition
 
 
@@ -66,10 +70,9 @@ add1=1
 sub1=1
 sub5=5
 setting=0
-strt=0
-stp=0
-index=0
+start_machine=0
 start_delay=0
+index=0
 
 
 #Font Size Definition
@@ -111,25 +114,25 @@ clock = pygame.time.Clock()
 state=["UMC750","VFS22","VF2","VM-3","TM3-P","Robodrill"]
 
 #Images used
-gearimg = pygame.image.load('/home/pi/gui/gear.png')
-m1= pygame.image.load('/home/pi/gui/UMC750.png')
-m1f= pygame.image.load('/home/pi/gui/UMC750t.png')
-m2= pygame.image.load('/home/pi/gui/VF2SS.png')
-m2f= pygame.image.load('/home/pi/gui/VF2SSt.png')
-m3= pygame.image.load('/home/pi/gui/VF2.png')
-m3f= pygame.image.load('/home/pi/gui/VF2t.png')
-m4= pygame.image.load('/home/pi/gui/VM_3.png')
-m4f= pygame.image.load('/home/pi/gui/VM_3t.png')
-m5= pygame.image.load('/home/pi/gui/Tm3_P.png')
-m5f= pygame.image.load('/home/pi/gui/Tm3_Pt.png')
-m6= pygame.image.load('/home/pi/gui/Robodrill.png')
-m6f= pygame.image.load('/home/pi/gui/Robodrillt.png')
-right= pygame.image.load('/home/pi/gui/right.png')
-left=  pygame.image.load('/home/pi/gui/left.png')
-up=pygame.image.load('/home/pi/gui/up.png')
-down=pygame.image.load('/home/pi/gui/down.png')
-lt1=pygame.image.load('/home/pi/gui/left_1.png')
-rt1=pygame.image.load('/home/pi/gui/right_1.png')
+gearimg = pygame.image.load(path+'gear.png')
+m1= pygame.image.load(path+'UMC750.png')
+m1f= pygame.image.load(path+'UMC750t.png')
+m2= pygame.image.load(path+'VF2SS.png')
+m2f= pygame.image.load(path+'VF2SSt.png')
+m3= pygame.image.load(path+'VF2.png')
+m3f= pygame.image.load(path+'VF2t.png')
+m4= pygame.image.load(path+'VM_3.png')
+m4f= pygame.image.load(path+'VM_3t.png')
+m5= pygame.image.load(path+'Tm3_P.png')
+m5f= pygame.image.load(path+'Tm3_Pt.png')
+m6= pygame.image.load(path+'Robodrill.png')
+m6f= pygame.image.load(path+'Robodrillt.png')
+right= pygame.image.load(path+'right.png')
+left=  pygame.image.load(path+'left.png')
+up=pygame.image.load(path+'up.png')
+down=pygame.image.load(path+'down.png')
+lt1=pygame.image.load(path+'left_1.png')
+rt1=pygame.image.load(path+'right_1.png')
 #g1=pygame.image.load('gear.svg')
 
 def gear(x,y):
@@ -157,7 +160,7 @@ txtm3  = create_font("VF2",h2)
 txtm4  = create_font("VM-3",h2)
 txtm5  = create_font("TM3-P",h2)
 txtm6  = create_font("Robodrill",h2)
-footer = create_font("Designed & Created by Roka Automation",h6,(67,70,75))
+footer = create_font("Designed & Created by Roka Automation",h5,(67,70,75))
 start  = create_font("START",s1,white,b=True)
 stop   = create_font("STOP",s1,white,b=True)
 backp  = create_font("BACK",h2)
@@ -204,13 +207,11 @@ m4off  =  0
 m5off  =  0
 m6off  =  0
 temp   =  0
-
+force_stop=0
 running = True
 
 def touch_delay():
-    time.sleep(1)
-
-    
+    time.sleep(0.5)
 
 def vertical_frame():
     pygame.draw.rect(screen, grey, pygame.Rect(920,120, width/3, height))
@@ -218,7 +219,7 @@ def vertical_frame():
 def horizontal_frame():
     pygame.draw.rect(screen, red, pygame.Rect(0, 0, width, 120))
     display(Banner,10,25)
-    display(footer,20,780)
+    display(footer,20,900)
 
 def highlight(x,y): 
     pygame.draw.rect(screen,red, pygame.Rect(x,y , width/3, 50))
@@ -236,7 +237,7 @@ def drawCircleB(pos,size,thick,c=(255,212,59)):
 def menu(index):
     display(select,980,select_item)
     if(index==0):
-       image_load(m1,90,150)
+       image_load(m1,90,200)
        image_load(right,750,350)
        pygame.draw.rect(screen,red, pygame.Rect(920,first_item-5 , width/3, 50))
        display(txtm1,1020,first_item)
@@ -246,7 +247,7 @@ def menu(index):
        display(txtm5,1035,fivth_item)
        display(txtm6,1020,sixth_item)
     elif(index==1):
-       image_load(m2,90,150)
+       image_load(m2,90,200)
        image_load(right,750,350)
        image_load(left,100,350)
        display(txtm1,1020,first_item)
@@ -257,7 +258,7 @@ def menu(index):
        display(txtm5,1035,fivth_item)
        display(txtm6,1020,sixth_item)
     elif(index==2):
-       image_load(m3,180,180)
+       image_load(m3,180,230)
        image_load(right,750,350)
        image_load(left,100,350)
        display(txtm1,1020,first_item)
@@ -268,7 +269,7 @@ def menu(index):
        display(txtm5,1035,fivth_item)
        display(txtm6,1020,sixth_item)
     elif(index==3):
-       image_load(m4,180,180)
+       image_load(m4,180,230)
        image_load(right,750,350)
        image_load(left,100,350)
        display(txtm1,1020,first_item)
@@ -279,7 +280,7 @@ def menu(index):
        display(txtm5,1035,fivth_item)
        display(txtm6,1020,sixth_item)
     elif(index==4):
-       image_load(m5,200,210)
+       image_load(m5,200,260)
        image_load(right,750,350)
        image_load(left,100,350)
        display(txtm1,1020,first_item)
@@ -290,7 +291,7 @@ def menu(index):
        display(txtm5,1035,fivth_item)
        display(txtm6,1020,sixth_item)
     elif(index==5):
-       image_load(m6,230,270)
+       image_load(m6,230,280)
        image_load(right,750,350)
        image_load(left,100,350)
        display(txtm1,1020,first_item)
@@ -301,7 +302,7 @@ def menu(index):
        display(txtm5,1035,fivth_item)
        display(txtm6,1020,sixth_item)
 
-    display(tap,400,720)
+    display(tap,400,820)
 
 def back_button(col,bor):
     pygame.draw.rect(screen, col, pygame.Rect(button))
@@ -318,15 +319,15 @@ def start_button(bg):
     if(bg==m6f):
        image_load(bg,230,270)
     elif(bg==m3f or bg==m4f):
-       image_load(bg,170,170)
+       image_load(bg,140,200)
     elif(bg==m5f):
-       image_load(bg,200,210)
+       image_load(bg,200,230)
     else:
-       image_load(bg,90,150)
+       image_load(bg,90,200)
     if(bg==m2f or bg==m3f):
-       display(tapc,350,700)
+       display(tapc,350,800)
     else:
-       display(tapc,350,650)
+       display(tapc,350,750)
     drawCircle((380,400),85)
     drawCircleB((380,400),87,6,black)
     drawCircle((590,400),60)
@@ -434,31 +435,30 @@ def touch(pos,x1,y1,x2,y2):
     else:
        return 0
 
+
+def touchc(pos,x1,y1,x2,y2):
+    area=pygame.Rect(x1,y1,x2,y2)
+    if area.collidepoint(pos):
+       return 1
+    else:
+       return 0
+
 def stop_menu(img):
     if(img==m6f):
        image_load(img,230,270)
     elif(img==m3f or img==m4f):
-       image_load(img,150,150)
+       image_load(img,140,200)
     elif(img==m5f):
-       image_load(img,200,210)
+       image_load(img,200,230)
     else:
-       image_load(img,90,150)
+       image_load(img,90,200)
     if(img==m2f or img==m3f):
-       display(tapc,350,700)
+       display(tapc,350,800)
     else:
-       display(tapc,350,650)
+       display(tapc,350,850)
     stop_button()
     side_pannel(index)
     back_button(grey,black)
-
-#Setup GPIO
-#GPIO.setmode(GPIO.BOARD)
-#GPIO.setup(m1pin,GPIO.OUT)
-#GPIO.setup(m2pin,GPIO.OUT)
-#GPIO.setup(m3pin,GPIO.OUT)
-#GPIO.setup(m4pin,GPIO.OUT)
-#GPIO.setup(m5pin,GPIO.OUT)
-#GPIO.setup(m6pin,GPIO.OUT)
 
 #Turns on the pump relay
 def RelayOn(pin):
@@ -528,24 +528,30 @@ while running:
            spy = (y - 400) ** 2
            sdx = (x - 590) ** 2
            sdy = (y - 400) ** 2
-
-           if(touch(pos,158,190,640,600) and m1click==0 and setting==0 and index==0 ):
+           print(pos)
+           if(touchc(pos,275,342,370,350) and m1click==0 and setting==0 and index==0):
               m1click=1
+              print("m1click=1")
               touch_delay()
-           if(touch(pos,158,190,640,600) and m2click==0 and setting==0 and index==1):
+           if(touchc(pos,307,276,420,400) and m2click==0 and setting==0 and index==1):
               m2click=1
+              print("m2click=1")
               touch_delay()
-           if(touch(pos,158,190,640,600) and m3click==0 and setting==0 and index==2):
+           if(touchc(pos,307,272,420,400) and m3click==0 and setting==0 and index==2):
               m3click=1
+              print("m3click=1")
               touch_delay()
-           if(touch(pos,158,190,640,600) and m4click==0 and setting==0 and index==3):
+           if(touchc(pos,290,316,420,400) and m4click==0 and setting==0 and index==3):
               m4click=1
+              print("m4click=1")
               touch_delay()
-           if(touch(pos,158,190,640,600) and m5click==0 and setting==0 and index==4):
+           if(touchc(pos,290,315,490,430) and m5click==0 and setting==0 and index==4):
               m5click=1
+              print("m5click=1")
               touch_delay()
-           if(touch(pos,158,190,640,600) and m6click==0 and setting==0 and index==5):
+           if(touchc(pos,230,280,435,465) and m6click==0 and setting==0 and index==5):
               m6click=1
+              print("m6click=1")
               touch_delay()
            if(touch(pos,1160,17,1236,93) and setting==0):
               setting=1 
@@ -601,8 +607,6 @@ while running:
            if(touch(pos,920,565,1280,605,) and setting==0 and m1click==0 and index!=5):
               index=5
               break
-           #if(touch(pos,1110,20,1192,112) and setting==0 and m1click==1 and index==0):
-           #   setting=1 
            if(touch(pos,30,160,190,210) and setting==1 and index==0):
               setting=0
               m1click=0
@@ -624,6 +628,7 @@ while running:
            if(touch(pos,30,160,190,210) and setting==1 and index==2):
               setting=0
               m3click=0
+           #######################################################################################################
            if(touch(pos,30,160,190,210) and setting==1 and index==2):
               setting=0
               m3click=1
@@ -689,157 +694,131 @@ while running:
                  display(gal,1070,400)
               else: 
                  display(gal,900,400)
+
+           #######################################################################################################
+           #print(math.sqrt(sqx+sqy))
            #Circle Click Check M1 Start
-           if ((math.sqrt(sqx + sqy) < 80 ) and (m1click==1) and strt==0 and index==0) :
-              strt=1
-              stp=0
-              #print(math.sqrt(sqx+sqy))
+           #if ((math.sqrt(sqx + sqy) < 80 ) and (m1click==1) and start_machine==0 and index==0 and stop_machine==0) :
+           if (touchc(pos,320,340,120,120) and start_machine==0) :
+              print("clicked m1 start")
+              start_machine=1
               touch_delay()
            #Circle Click Check M1   
-           if ((math.sqrt(spx + spy) < 90 ) and (m1click==1) and stp==1 and index==0) :
-              #print ("inside")
-              strt=0
-              m1click=1
-              start_delay=0
-              if(m1off==0):
-                 RelayOff(m1pin)
-                 m1on=0
-                 m1off=1
-              #print(math.sqrt(sqx+sqy))
+           #if ((math.sqrt(spx + spy) < 90 ) and (m1click==1) and stop_machine==0 and index==0 and start_machine==1) :
+           if (touchc(pos,410,350,140,140) and force_stop==0 and  start_machine==1) :
+              print("force_stop m1 stop")
+              force_stop=1;
               touch_delay()
            #Circle Click Check M1
-           if ((math.sqrt(sdx + sdy) < 60 ) and (m1click==1) and strt==0 and index==0 and start_delay==0) :
+           if ((math.sqrt(sdx + sdy) < 60 ) and (m1click==1) and start_machine==0 and index==0 and start_delay==0) :
               start_delay=1
-              strt=1
+              start_machine=1
               temp=count
-              stp=0
-              #print(math.sqrt(sdx+sdy))
-           #Circle Click Check M2 Start
-           if ((math.sqrt(sqx + sqy) < 80 ) and (m2click==1) and strt==0 and index==1) :
-              strt=1
-              stp=0
-              #print(math.sqrt(sqx+sqy))
               touch_delay()
-           #Circle Click Check M2   
-           if ((math.sqrt(spx + spy) < 90 ) and (m2click==1) and stp==1 and index==1) :
-              #print ("inside")
-              strt=0
-              m2click=1
-              start_delay=0
-              if(m2off==0):
-                 RelayOff(m2pin)
-                 m2on=0
-                 m2off=1
-              #print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M2
-           if ((math.sqrt(sdx + sdy) < 60 ) and (m2click==1) and strt==0 and index==1 and start_delay==0) :
-              start_delay=1
-              strt=1
-              temp=count
-              stp=0
-              #print(math.sqrt(sdx+sdy))
-              touch_delay()
-           #Circle Click Check M3 Start
-           if ((math.sqrt(sqx + sqy) < 80 ) and (m3click==1) and strt==0 and index==2) :
-              strt=1
-              stp=0
-              #print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M3   
-           if ((math.sqrt(spx + spy) < 90 ) and (m3click==1) and stp==1 and index==2) :
-              print ("inside")
-              strt=0
-              m3click=1
-              start_delay=0
-              if(m3off==0):
-                 RelayOff(m3pin)
-                 m3on=0
-                 m3off=1
-              print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M3
-           if ((math.sqrt(sdx + sdy) < 60 ) and (m3click==1) and strt==0 and index==2 and start_delay==0) :
-              start_delay=1
-              strt=1
-              temp=count
-              stp=0
-              print(math.sqrt(sdx+sdy))
-           #Circle Click Check M4 Start
-           if ((math.sqrt(sqx + sqy) < 80 ) and (m4click==1) and strt==0 and index==3) :
-              strt=1
-              stp=0
-              print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M4   
-           if ((math.sqrt(spx + spy) < 90 ) and (m4click==1) and stp==1 and index==3) :
-              print ("inside")
-              strt=0
-              m4click=1
-              start_delay=0
-              if(m4off==0):
-                 RelayOff(m4pin)
-                 m4on=0
-                 m4off=1
-              print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M4
-           if ((math.sqrt(sdx + sdy) < 60 ) and (m4click==1) and strt==0 and index==3 and start_delay==0) :
-              start_delay=1
-              strt=1
-              temp=count
-              stp=0
-              print(math.sqrt(sdx+sdy))
-           #Circle Click Check M5 Start
-           if ((math.sqrt(sqx + sqy) < 80 ) and (m5click==1) and strt==0 and index==4) :
-              strt=1
-              stp=0
-              print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M5   
-           if ((math.sqrt(spx + spy) < 90 ) and (m5click==1) and stp==1 and index==4) :
-              print ("inside")
-              strt=0
-              m5click=1
-              start_delay=0
-              if(m5off==0):
-                 off_m5()
-                 m5on=0
-                 m5off=1
-              print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M5
-           if ((math.sqrt(sdx + sdy) < 60 ) and (m5click==1) and strt==0 and index==4 and start_delay==0) :
-              start_delay=1
-              strt=1
-              temp=count
-              stp=0
-              print(math.sqrt(sdx+sdy))
-           #Circle Click Check M6 Start
-           if ((math.sqrt(sqx + sqy) < 80 ) and (m6click==1) and strt==0 and index==5) :
-              strt=1
-              stp=0
-              print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M6   
-           if ((math.sqrt(spx + spy) < 90 ) and (m6click==1) and stp==1 and index==5) :
-              print ("inside")
-              strt=0
-              m6click=1
-              start_delay=0
-              if(m6off==0):
-                 RelayOff(m6pin)
-                 m6on=0
-                 m6off=1
-              print(math.sqrt(sqx+sqy))
-              touch_delay()
-           #Circle Click Check M6
-           if ((math.sqrt(sdx + sdy) < 60 ) and (m6click==1) and strt==0 and index==5 and start_delay==0) :
-              start_delay=1
-              strt=1
-              temp=count
-              stp=0
-              print(math.sqrt(sdx+sdy))
+         ########################################################################################################
+         #  #Circle Click Check M2 Start
+         #  if (touch(pos,320,340,120,120) and (m2click==1) and start_machine==0 and index==1) :
+         #     start_machine=1
+         #     touch_delay()
+         #  #Circle Click Check M2   
+         #  if (touch(pos,410,350,140,140) and (m2click==1) and force_stop==0 and index==1 and start_machine==1) :
+         #     print("force_stop m2 stop")
+         #     force_stop=1;
+         #     touch_delay()
+         #  #Circle Click Check M2
+         #  if ((math.sqrt(sdx + sdy) < 60 ) and (m2click==1) and start_machine==0 and index==1 and start_delay==0) :
+         #     start_delay=1
+         #     start_machine=1
+         #     temp=count
+         #     touch_delay()
+         #  #######################################################################################################
+         #  #Circle Click Check M3 Start
+         #  if (touch(pos,320,340,120,120) and (m3click==1) and start_machine==0 and index==2) :
+         #     start_machine=1
+         #     touch_delay()
+         #  #Circle Click Check M3   
+         #  if (touch(pos,410,350,140,140) and (m3click==1) and stop_machine==1 and index==2) :
+         #  if ((math.sqrt(sdx + sdy) < 60 ) and (m3click==1) and start_machine==0 and index==2 and start_delay==0) :
+         #     start_delay=1
+         #     start_machine=1
+         #     temp=count
+         #     stop_machine=0
+         #     print(math.sqrt(sdx+sdy))
+         #  #Circle Click Check M4 Start
+         #  if (touch(pos,320,340,120,120) and (m4click==1) and start_machine==0 and index==3) :
+         #     start_machine=1
+         #     stop_machine=0
+         #     print(math.sqrt(sqx+sqy))
+         #     touch_delay()
+         #  #Circle Click Check M4   
+         #  if (touch(pos,410,350,140,140) and (m4click==1) and stop_machine==1 and index==3) :
+         #     print ("inside")
+         #     start_machine=0
+         #     m4click=1
+         #     start_delay=0
+         #     if(m4off==0):
+         #        RelayOff(m4pin)
+         #        m4on=0
+         #        m4off=1
+         #     print(math.sqrt(sqx+sqy))
+         #     touch_delay()
+         #  #Circle Click Check M4
+         #  if ((math.sqrt(sdx + sdy) < 60 ) and (m4click==1) and start_machine==0 and index==3 and start_delay==0) :
+         #     start_delay=1
+         #     start_machine=1
+         #     temp=count
+         #     stop_machine=0
+         #     print(math.sqrt(sdx+sdy))
+         #  #Circle Click Check M5 Start
+         #  if (touch(pos,320,340,120,120) and (m5click==1) and start_machine==0 and index==4) :
+         #     start_machine=1
+         #     stop_machine=0
+         #     print(math.sqrt(sqx+sqy))
+         #     touch_delay()
+         #  #Circle Click Check M5   
+         #  if (touch(pos,410,350,140,140) and (m5click==1) and stop_machine==1 and index==4) :
+         #     print ("inside")
+         #     start_machine=0
+         #     m5click=1
+         #     start_delay=0
+         #     if(m5off==0):
+         #        off_m5()
+         #        m5on=0
+         #        m5off=1
+         #     print(math.sqrt(sqx+sqy))
+         #     touch_delay()
+         #  #Circle Click Check M5
+         #  if ((math.sqrt(sdx + sdy) < 60 ) and (m5click==1) and start_machine==0 and index==4 and start_delay==0) :
+         #     start_delay=1
+         #     start_machine=1
+         #     temp=count
+         #     stop_machine=0
+         #     print(math.sqrt(sdx+sdy))
+         #  #Circle Click Check M6 Start
+         #  if (touch(pos,320,340,120,120) and (m6click==1) and start_machine==0 and index==5) :
+         #     start_machine=1
+         #     stop_machine=0
+         #     print(math.sqrt(sqx+sqy))
+         #     touch_delay()
+         #  #Circle Click Check M6   
+         #  if (touch(pos,410,350,140,140) and (m6click==1) and stop_machine==1 and index==5) :
+         #     print ("inside")
+         #     start_machine=0
+         #     m6click=1
+         #     start_delay=0
+         #     if(m6off==0):
+         #        RelayOff(m6pin)
+         #        m6on=0
+         #        m6off=1
+         #     print(math.sqrt(sqx+sqy))
+         #     touch_delay()
+         #  #Circle Click Check M6
+         #  if ((math.sqrt(sdx + sdy) < 60 ) and (m6click==1) and start_machine==0 and index==5 and start_delay==0) :
+         #     start_delay=1
+         #     start_machine=1
+         #     temp=count
+         #     stop_machine=0
+         #     print(math.sqrt(sdx+sdy))
            #Setting Bar
            if(touch(pos,401,301,443,369) and setting==1):
               if(gallon<9):
@@ -923,11 +902,11 @@ while running:
     if(index==0):
        if(m1click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('/home/pi/gui/right.png')
+          right= pygame.image.load(path+'right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
-       elif(strt==1 and m1click==1 and start_delay==0):
+       elif(start_machine==1 and m1click==1 and start_delay==0 and force_stop==0):
           if(m1on==0):
               RelayOn(m1pin)
               m1on=1
@@ -939,17 +918,25 @@ while running:
                 m1off=1
                 fcount=0
                 m1click=0
-                start=0
+                start_machine=0
           stop_menu(m1f)
-          stp=1
-       elif(strt==1 and m1click==1 and start_delay==1):
+       elif(force_stop==1 and start_machine==1 and m1click==1 and start_delay==0):
+             if(m1off==0):
+                RelayOff(m1pin)
+                m1on=0
+                m1off=1
+                fcount=0
+             m1click=1
+             start_machine=0
+             force_stop=0
+             touch_delay()  
+       elif(start_machine==1 and m1click==1 and start_delay==1 and force_stop==0):
           time.sleep(1)
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m1f)
           side_pannel(index)
           if(temp==0):
-             stp=1
              stop_menu(m1f)
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
@@ -963,19 +950,21 @@ while running:
                    m1on=0 
                    fcount=0
                    m1off=1
-                   m1click=0
-             start=0
+                m1click=1
+                start_machine=0
+                force_stop=0
+                start_delay=0
        elif(m1click==1 and setting==0):
           start_button(m1f)
           side_pannel(index)
     elif(index==1):   
        if(m2click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('/home/pi/gui/right.png')
+          right= pygame.image.load(path+'right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
-       elif(strt==1 and m2click==1 and start_delay==0):
+       elif(start_machine==1 and m2click==1 and start_delay==0 and force_stop==0):
           if(m2on==0):
               RelayOn(m2pin)
               m2on=1
@@ -987,17 +976,25 @@ while running:
                 m2off=1
                 fcount=0
                 m2click=0
-                start=0
+                start_machine=0
           stop_menu(m2f)
-          stp=1
-       elif(m2click==1 and setting==0 and start_delay==1):  
+       elif(force_stop==1 and start_machine==1 and m2click==1 and start_delay==0):
+             if(m2off==0):
+                RelayOff(m2pin)
+                m2on=0
+                m2off=1
+                fcount=0
+             m2click=1
+             start_machine=0
+             force_stop=0
+             touch_delay()  
+       elif(start_machine==1 and m2click==1 and setting==0 and start_delay==1 and force_stop==0):  
           time.sleep(1)
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m2f)
           side_pannel(index)
           if(temp==0):
-             stp=1
              stop_menu(m2f)
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
@@ -1011,19 +1008,21 @@ while running:
                    m2on=0 
                    fcount=0
                    m2off=1
-                   m2click=0
-             start=0
+                m2click=0
+                start_machine=0
+                force_stop=0
+                start_delay=0
        elif(m2click==1 and setting==0):  
           start_button(m2f)
           side_pannel(index)
     elif(index==2):      
        if(m3click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('/home/pi/gui/right.png')
+          right= pygame.image.load(path+'right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
-       elif(strt==1 and m3click==1 and start_delay==0):
+       elif(start_machine==1 and m3click==1 and start_delay==0 and force_stop==0):
           if(m3on==0):
               RelayOn(m3pin)
               m3on=1
@@ -1035,17 +1034,25 @@ while running:
                 m3off=1
                 fcount=0
                 m3click=0
-                start=0
+                start_machine=0
           stop_menu(m3f)
-          stp=1
-       elif(m3click==1 and setting==0 and start_delay==1):  
+       elif(force_stop==1 and start_machine==1 and m3click==1 and start_delay==0):
+             if(m3off==0):
+                RelayOff(m3pin)
+                m3on=0
+                m3off=1
+                fcount=0
+             m3click=1
+             start_machine=0
+             force_stop=0
+             touch_delay()  
+       elif(start_machine==1 and m3click==1 and setting==0 and start_delay==1 and force_stop==0):  
           time.sleep(1)
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m3f)
           side_pannel(index)
           if(temp==0):
-             stp=1
              stop_menu(m3f)
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
@@ -1059,19 +1066,21 @@ while running:
                    m3on=0 
                    fcount=0
                    m3off=1
-                   m3click=0
-             start=0
+                m3click=0
+                start_machine=0
+                force_stop=0
+                start_delay=0
        elif(m3click==1 and setting==0):  
           start_button(m3f)
           side_pannel(index)
     elif(index==3):      
        if(m4click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('/home/pi/gui/right.png')
+          right= pygame.image.load(path+'right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
-       elif(strt==1 and m4click==1 and start_delay==0):
+       elif(start_machine==1 and m4click==1 and start_delay==0 and force_stop==0):
           if(m4on==0):
               RelayOn(m4pin)
               m4on=1
@@ -1083,43 +1092,53 @@ while running:
                 m4off=1
                 fcount=0
                 m4click=0
-                start=0
+                start_machine=0
           stop_menu(m4f)
-          stp=1
-       elif(m4click==1 and setting==0 and start_delay==1):  
-          time.sleep(1)
-          temp-=1
-          sec    = create_font(str(temp),h4,white,b=True)
-          start_button(m4f)
-          side_pannel(index)
-          if(temp==0):
-             stp=1
-             stop_menu(m4f)
-             start_delay=0
-             sec    = create_font(str(count),h4,white,b=True)
-             if(m4on==0):
-                RelayOn(m4pin)
-                m4on=1
-                m4off=0
-             if(volume > gallon):    
-                if(m4off==0):
-                   RelayOff(m4pin)
-                   m4on=0 
-                   fcount=0
-                   m4off=1
-                   m4click=0
-             start=0
+       elif(force_stop==1 and start_machine==1 and m4click==1 and start_delay==0):
+           if(m4off==0):
+              RelayOff(m4pin)
+              m4on=0
+              m4off=1
+              fcount=0
+           m4click=1
+           start_machine=0
+           force_stop=0
+           touch_delay()  
+       elif(start_machine==1 and m4click==1 and setting==0 and start_delay==1 and force_stop==0):  
+           time.sleep(1)
+           temp-=1
+           sec    = create_font(str(temp),h4,white,b=True)
+           start_button(m4f)
+           side_pannel(index)
+           if(temp==0):
+              stop_menu(m4f)
+              start_delay=0
+              sec    = create_font(str(count),h4,white,b=True)
+              if(m4on==0):
+                 RelayOn(m4pin)
+                 m4on=1
+                 m4off=0
+              if(volume > gallon):    
+                 if(m4off==0):
+                    RelayOff(m4pin)
+                    m4on=0 
+                    fcount=0
+                    m4off=1
+                 m4click=0
+                 start_machine=0
+                 force_stop=0
+                 start_delay=0
        elif(m4click==1 and setting==0):  
           start_button(m4f)
           side_pannel(index)
     elif(index==4):      
        if(m5click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('/home/pi/gui/right.png')
+          right= pygame.image.load(path+'right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
-       elif(strt==1 and m5click==1 and start_delay==0):
+       elif(start_machine==1 and m5click==1 and start_delay==0 and force_stop==0):
           if(m5on==0):
               RelayOn(m5pin)
               m5on=1
@@ -1129,19 +1148,27 @@ while running:
                 RelayOff(m5pin)
                 m5on=0
                 m5off=1
-                fcount=0
-                m5click=0
-                start=0
+             fcount=0
+             m5click=0
+             start_machine=0
           stop_menu(m5f)
-          stp=1
-       elif(m5click==1 and setting==0 and start_delay==1):  
+       elif(force_stop==1 and start_machine==1 and m5click==1 and start_delay==0):
+             if(m5off==0):
+                RelayOff(m5pin)
+                m5on=0
+                m5off=1
+                fcount=0
+             m5click=1
+             start_machine=0
+             force_stop=0
+             touch_delay()  
+       elif(start_machine==1 and m5click==1 and setting==0 and start_delay==1 and force_stop==0):  
           time.sleep(1)
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m5f)
           side_pannel(index)
           if(temp==0):
-             stp=1
              stop_menu(m5f)
              start_delay=0
              sec    = create_font(str(count),h4,white,b=True)
@@ -1156,18 +1183,20 @@ while running:
                    fcount=0
                    m5off=1
                    m5click=0
-             start=0
+                   start_machine=0
+                   start_delay=0
+                   force_stop=0
        elif(m5click==1 and setting==0):  
           start_button(m5f)
           side_pannel(index)
     elif(index==5):      
        if(m6click==0 and setting==0):
           menu(index)
-          right= pygame.image.load('/home/pi/gui/right.png')
+          right= pygame.image.load(path+'right.png')
           image_load(right,750,350)
        elif(setting==1): 
           settings_menu()
-       elif(strt==1 and m6click==1 and start_delay==0):
+       elif(start_machine==1 and m6click==1 and start_delay==0 and force_stop==0):
           if(m6on==0):
               RelayOn(m6pin)
               m6on=1
@@ -1177,26 +1206,44 @@ while running:
                 RelayOff(m6pin)
                 m6on=0
                 m6off=1
-                fcount=0
-                m6click=0
-                start=0
+             fcount=0
+             m6click=0
+             start_machine=0
           stop_menu(m6f)
-          stp=1
-       elif(m6click==1 and setting==0 and start_delay==1):  
+       elif(force_stop==1 and start_machine==1 and m6click==1 and start_delay==0):
+             if(m6off==0):
+                RelayOff(m6pin)
+                m6on=0
+                m6off=1
+                fcount=0
+             m6click=1
+             start_machine=0
+             force_stop=0
+             touch_delay()  
+       elif(start_machine==1 and m6click==1 and setting==0 and start_delay==1 and force_stop==0):  
           time.sleep(1)
           temp-=1
           sec    = create_font(str(temp),h4,white,b=True)
           start_button(m6f)
           side_pannel(index)
+          sec    = create_font(str(count),h4,white,b=True)
           if(temp==0):
-             stp=1
              stop_menu(m6f)
              start_delay=0
              if(m6on==0):
                 RelayOn(m6pin)
                 m6on=1
                 m6off=0
-             sec    = create_font(str(count),h4,white,b=True)
+             if(volume > gallon):    
+                if(m6off==0):
+                   RelayOff(m6pin)
+                   m6on=0 
+                   fcount=0
+                   m6off=1
+                   m6click=1
+                   start_machine=0
+                   force_stop=0
+                   start_delay=0
        elif(m6click==1 and setting==0):  
           start_button(m6f)
           side_pannel(index)
